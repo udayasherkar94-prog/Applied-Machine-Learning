@@ -1,0 +1,35 @@
+sklearn
+│
+├── preprocessing
+│     ├── StandardScaler
+│     ├── MinMaxScaler
+│     └── OneHotEncoder
+│
+├── linear_model
+│     ├── LinearRegression
+│     ├── LogisticRegression
+│     └── SGDRegressor
+│
+├── tree
+│     ├── DecisionTreeClassifier
+│     └── DecisionTreeRegressor
+│
+├── ensemble
+│     ├── RandomForestClassifier
+│     └── RandomForestRegressor
+│
+├── neighbors
+│     └── KNeighborsClassifier
+│
+├── svm
+│     ├── SVC
+│     └── SVR
+│
+├── cluster
+│     └── KMeans
+│
+└── metrics
+      ├── accuracy_score
+      ├── precision_score
+      ├── recall_score
+      └── mean_squared_error
