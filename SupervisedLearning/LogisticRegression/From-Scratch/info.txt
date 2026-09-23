@@ -1,0 +1,18 @@
+Tumor size < 5 cm  → 0 → Malignant
+Tumor size ≥ 5 cm  → 1 → Benign
+
+0 → Malignant
+1 → Benign
+
+🟢 Tumor -> Benign
+
+Benign = not cancerous
+
+A benign tumor is generally non-cancerous. It can grow, but it typically does not invade nearby tissues or spread to other parts of the body.
+
+
+🔴Tumor -> Malignant
+
+Malignant = cancerous
+
+A malignant tumor is cancerous. Cancer cells can invade surrounding tissues and may spread to other parts of the body.
