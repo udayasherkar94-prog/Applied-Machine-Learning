@@ -21,30 +21,13 @@ def load_house_data():
     """
 
     X = np.array([
-        [952, 2, 1, 65],
-        [1244, 3, 2, 64],
-        [1947, 3, 2, 17],
-        [1722, 4, 2, 42],
-        [1218, 3, 2, 15],
-        [1656, 3, 1, 18],
-        [1219, 3, 2, 21],
-        [1600, 3, 2, 19],
-        [1200, 3, 1, 40],
-        [1800, 4, 2, 15]
+        [952, 2, 1, 65],[1244, 3, 2, 64],[1947, 3, 2, 17], [1722, 4, 2, 42], [1218, 3, 2, 15],
+        [1656, 3, 1, 18],[1219, 3, 2, 21],[1600, 3, 2, 19],[1200, 3, 1, 40],[1800, 4, 2, 15]
     ])
 
     y = np.array([
-        271.5,
-        232.0,
-        509.8,
-        477.0,
-        218.0,
-        400.0,
-        
-        300.0,
-        420.0,
-        318.7,
-        450.0
+        271.5,232.0, 509.8,477.0, 218.0,
+        400.0,300.0,420.0,318.7,450.0
     ])
 
     return X, y
@@ -74,6 +57,20 @@ def compute_cost(X, y, w, b):
 # Compute Gradient
 # ---------------------------------------------------------
 
+'''
+1. Gradient with respect to w:
+dj_dw = (1 / m) * Σ((prediction - actual) * x)
+
+2. Gradient with respect to b:
+dj_db = (1 / m) * Σ(prediction - actual)
+
+Where:
+m = number of training examples
+prediction = f(w, b, x)
+actual = y
+error = prediction - actual
+'''
+
 def compute_gradient(X, y, w, b):
     """
     Compute gradients for weights and bias.
@@ -83,9 +80,17 @@ def compute_gradient(X, y, w, b):
 
     predictions = np.dot(X, w) + b
 
-    errors = predictions - y
+    errors = predictions - y  # fw_b(X) - y^
+    print(X.shape)
+    X_transpose = X.T # x(i)
+    print("after transpose shape of X:",X_transpose.shape) # (4, 10)
+    print("shape of errors:",errors.shape) # (10,)
 
-    dj_dw = (1 / m) * np.dot(X.T, errors)
+    # (prediction - actual) * x
+    dot_product = np.dot(X_transpose, errors)
+
+    dj_dw = dot_product / m
+    
 
     dj_db = (1 / m) * np.sum(errors)
 
@@ -114,12 +119,9 @@ def gradient_descent(X, y, w, b, alpha, iterations):
         cost = compute_cost(X, y, w, b)
 
         cost_history.append(cost)
-
+        # it is optional just for understanding
         if i % 100 == 0:
-            print(
-                f"Iteration {i}: "
-                f"Cost = {cost:.2f}"
-            )
+            print(f"Iteration {i}: "f"Cost = {cost:.2f}" )
 
     return w, b, cost_history
 
@@ -141,13 +143,9 @@ def zscore_normalize_features(X):
         mean
         standard_deviation
     """
-
     mu = np.mean(X, axis=0)
-
     sigma = np.std(X, axis=0)
-
     X_norm = (X - mu) / sigma
-
     return X_norm, mu, sigma
 
 
@@ -172,10 +170,8 @@ X_norm, X_mu, X_sigma = zscore_normalize_features(X_train)
 
 print("\nMean of Features:")
 print(X_mu)
-
 print("\nStandard Deviation:")
 print(X_sigma)
-
 print("\nNormalized Features:")
 print(X_norm)
 
@@ -185,13 +181,9 @@ print(X_norm)
 # ---------------------------------------------------------
 
 n_features = X_norm.shape[1]
-
 w = np.zeros(n_features)
-
 b = 0
-
 alpha = 0.1
-
 iterations = 1000
 
 
@@ -199,26 +191,15 @@ iterations = 1000
 # Train Model
 # ---------------------------------------------------------
 
-w, b, cost_history = gradient_descent(
-    X_norm,
-    y_train,
-    w,
-    b,
-    alpha,
-    iterations
-)
+w, b, cost_history = gradient_descent( X_norm, y_train,w,b,alpha,iterations)
 
 
 # ---------------------------------------------------------
 # Display Final Parameters
 # ---------------------------------------------------------
-
 print("\nFinal Parameters:")
-
 print("Weights:", w)
-
 print("Bias:", b)
-
 print("Final Cost:", cost_history[-1])
 
 
@@ -227,13 +208,9 @@ print("Final Cost:", cost_history[-1])
 # ---------------------------------------------------------
 
 plt.plot(cost_history)
-
 plt.xlabel("Iterations")
-
 plt.ylabel("Cost")
-
 plt.title("Cost vs Iterations")
-
 plt.show()
 
 
@@ -241,12 +218,7 @@ plt.show()
 # Prediction
 # ---------------------------------------------------------
 
-x_house = np.array([
-    1200,
-    3,
-    1,
-    40
-])
+x_house = np.array([1200,3,1,40])
 
 
 # Normalize new input
@@ -258,17 +230,9 @@ prediction = np.dot(x_house_norm, w) + b
 
 
 print("\nNew House Information:")
-
 print("Size: 1200 sqft")
-
 print("Bedrooms: 3")
-
 print("Floors: 1")
-
 print("Age: 40 years")
 
-
-print(
-    f"\nPredicted House Price: "
-    f"${prediction * 1000:,.0f}"
-)
+print(f"\nPredicted House Price: " f"${prediction * 1000:,.0f}")
