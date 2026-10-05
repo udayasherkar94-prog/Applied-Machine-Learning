@@ -6,36 +6,24 @@ import numpy as np
 # =========================================================
 # 1. SAMPLE BREAST TUMOR DATA
 # =========================================================
-#
 # We are creating a small dataset ourselves.
-#
+
 # Features:
-#
 # x0 = tumor size in cm
 # x1 = cell density score
 #
 # Target:
-#
 # 0 = Malignant
 # 1 = Benign
-#
+
 # IMPORTANT:
 # This is artificial data created only for learning.
 # It is NOT real medical data.
 # =========================================================
 
 X_train = np.array([
-    [2.0, 1.0],
-    [2.5, 1.5],
-    [3.0, 1.2],
-    [3.5, 2.0],
-    [4.0, 2.5],
-
-    [6.0, 6.0],
-    [6.5, 7.0],
-    [7.0, 6.5],
-    [7.5, 8.0],
-    [8.0, 7.5]
+    [2.0, 1.0],[2.5, 1.5],[3.0, 1.2],[3.5, 2.0],[4.0, 2.5],
+    [6.0, 6.0],[6.5, 7.0],[7.0, 6.5],[7.5, 8.0],[8.0, 7.5]
 ])
 
 
@@ -43,17 +31,8 @@ X_train = np.array([
 # 1 = Benign
 
 y_train = np.array([
-    0,
-    0,
-    0,
-    0,
-    0,
-
-    1,
-    1,
-    1,
-    1,
-    1
+    0,0,0,0,0,
+    1,1,1,1,1
 ])
 
 
@@ -67,13 +46,9 @@ print(y_train)
 # =========================================================
 # 2. FEATURE SCALING FROM SCRATCH
 # =========================================================
-#
-# We will NOT use StandardScaler from sklearn.
-#
+
 # Formula:
-#
 # z = (x - mean) / standard_deviation
-#
 # We calculate mean and standard deviation ourselves.
 # =========================================================
 
@@ -98,9 +73,7 @@ print(X_scaled)
 # =========================================================
 # 3. SIGMOID FUNCTION
 # =========================================================
-#
 # Converts z into a probability between 0 and 1.
-#
 # sigmoid(z) = 1 / (1 + e^(-z))
 # =========================================================
 
@@ -123,27 +96,33 @@ def compute_cost_logistic(X, y, w, b):
     # Go through every training example
     for i in range(m):
 
-        # Calculate:
-        #
-        # z = w.x + b
-        #
+        # Calculate: z = w.x + b
         z = np.dot(X[i], w) + b
 
         # Convert z into probability
         f_wb = sigmoid(z)
 
-        # Prevent log(0)
-        f_wb = np.clip(
-            f_wb,
-            1e-15,
-            1 - 1e-15
-        )
+        # Prevent  np.log(0) -inf
+        # This can cause problems during training because the cost can become infinite.
+
+        # np.clip(array, minimum, maximum)  forces values to stay inside a specified range
+        f_wb = np.clip( f_wb,1e-15,1 - 1e-15 )  # 1*10^-15  | number e -exponent --for nrgative exponent | number e exponent positive
 
         # Logistic loss
-        loss = (
-            -y[i] * np.log(f_wb)
-            - (1 - y[i]) * np.log(1 - f_wb)
-        )
+        loss = -(y[i] * np.log(f_wb) + (1 - y[i]) * np.log(1 - f_wb))
+        '''
+                                           Binary Cross-Entropy
+                                                ↓
+                      loss = - [ y log(prediction) + (1-y) log(1-prediction) ]
+                                 └───────┬───────┘   └─────────┬──────────┘
+                                    y = 1 part              y = 0 part
+
+                here y is actual data 
+                if y = 1 then second + part become zero  so to calculate error used  = -(log(prediction))
+                similarly
+                if y = 0  then the first part become zero and cancel so to calculate error = -1(log(1-prediction))  
+                here 0 and 1 behave like two classes in binary classification                  
+        '''
 
         # Add loss
         cost = cost + loss
@@ -165,11 +144,9 @@ def compute_gradient_logistic(X, y, w, b):
     m, n = X.shape
 
     # Gradient for every weight
-    #
     # For 2 features:
-    #
+
     # dj_dw = [0, 0]
-    #
     dj_dw = np.zeros(n)
 
     # Gradient for bias
@@ -201,10 +178,7 @@ def compute_gradient_logistic(X, y, w, b):
 
         for j in range(n):
 
-            dj_dw[j] = (
-                dj_dw[j]
-                + error * X[i, j]
-            )
+            dj_dw[j] = ( dj_dw[j] + error * X[i, j] )
 
 
         # Gradient for b
@@ -224,14 +198,7 @@ def compute_gradient_logistic(X, y, w, b):
 # 6. GRADIENT DESCENT
 # =========================================================
 
-def gradient_descent(
-    X,
-    y,
-    w_in,
-    b_in,
-    alpha,
-    num_iters
-):
+def gradient_descent( X, y, w_in, b_in, alpha, num_iters):
 
     # Store cost after every iteration
     J_history = []
@@ -250,18 +217,11 @@ def gradient_descent(
     for i in range(num_iters):
 
         # Calculate gradient
-        dj_db, dj_dw = compute_gradient_logistic(
-            X,
-            y,
-            w,
-            b
-        )
+        dj_db, dj_dw = compute_gradient_logistic( X,y,w,b)
 
 
         # Update weights
-        #
         # w = w - alpha * gradient
-        #
         w = w - alpha * dj_dw
 
 
@@ -269,15 +229,11 @@ def gradient_descent(
         b = b - alpha * dj_db
 
 
+        # optinal it for understanding how gradinet descent reach minimum cost 
         # Calculate cost
-        cost = compute_cost_logistic(
-            X,
-            y,
-            w,
-            b
-        )
+        cost = compute_cost_logistic( X,y,w,b)
 
-
+ 
         # Store cost
         J_history.append(cost)
 
@@ -285,11 +241,7 @@ def gradient_descent(
         # Print cost every 100 iterations
         if i % 100 == 0:
 
-            print(
-                f"Iteration {i:4d}: "
-                f"Cost = {cost:.6f}"
-            )
-
+            print(f"Iteration {i:4d}: "  f"Cost = {cost:.6f}")
 
     return w, b, J_history
 
@@ -303,25 +255,18 @@ n_features = X_scaled.shape[1]
 
 
 # Initially all weights are zero
-#
 # Because we have 2 features:
-#
 # w = [0, 0]
-#
 w_initial = np.zeros(n_features)
-
 
 # Initially bias is zero
 b_initial = 0.0
 
-
 # Learning rate
 alpha = 0.1
 
-
 # Number of iterations
 num_iters = 2000
-
 
 print("\nStarting Gradient Descent...\n")
 
@@ -330,22 +275,13 @@ print("\nStarting Gradient Descent...\n")
 # 8. TRAIN THE MODEL
 # =========================================================
 
-w_final, b_final, J_history = gradient_descent(
-    X_scaled,
-    y_train,
-    w_initial,
-    b_initial,
-    alpha,
-    num_iters
-)
+w_final, b_final, J_history = gradient_descent( X_scaled, y_train, w_initial, b_initial, alpha,num_iters)
 
 
 print("\nTraining completed.")
 
-
 print("\nFinal weights:")
 print(w_final)
-
 
 print("\nFinal bias:")
 print(b_final)
@@ -365,7 +301,6 @@ def predict(X, w, b):
 
 
     # Convert probability into class
-    #
     # probability >= 0.5 -> 1
     # probability < 0.5  -> 0
 
@@ -389,11 +324,7 @@ print("========================================")
 
 for i in range(len(X_scaled)):
 
-    prediction, probability = predict(
-        X_scaled[i],
-        w_final,
-        b_final
-    )
+    prediction, probability = predict(X_scaled[i], w_final,b_final)
 
 
     print(
@@ -407,43 +338,31 @@ for i in range(len(X_scaled)):
 # =========================================================
 # 11. TEST A NEW TUMOR
 # =========================================================
-#
 # This tumor was NOT used during training.
-#
+
 # Suppose a new patient has:
-#
 # tumor size = 3.2 cm
 # cell density = 1.8
 # =========================================================
 
-new_tumor = np.array([
-    [3.2, 1.8]
-])
+new_tumor = np.array([[3.2, 1.8]])
 
 
 # IMPORTANT:
-#
 # We must scale the new data using the SAME
 # mean and standard deviation calculated
 # from the training data.
 #
-new_tumor_scaled = (
-    new_tumor - mean
-) / std
+new_tumor_scaled = ( new_tumor - mean) / std
 
 
 # Make prediction
-prediction, probability = predict(
-    new_tumor_scaled[0],
-    w_final,
-    b_final
-)
+prediction, probability = predict(new_tumor_scaled[0], w_final, b_final)
 
 
 print("\n========================================")
 print("NEW TUMOR PREDICTION")
 print("========================================")
-
 
 print("Tumor size:", new_tumor[0][0], "cm")
 
